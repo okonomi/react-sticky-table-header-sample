@@ -75,8 +75,14 @@ function useStickyTableHeader() {
       }
     };
 
-    const tableHeader = tableHeaderRef.current;
-    const tableBody = tableBodyRef.current;
+    const handleWindowResize = () => {
+      tableWidth = tableRef.current.getBoundingClientRect().width;
+
+      setTableHeaderStyle((prev) => ({
+        ...prev,
+        width: tableWidth
+      }));
+    };
 
     const handleTableScroll = (e) => {
       const scrollY = e.target.scrollLeft;
@@ -84,12 +90,17 @@ function useStickyTableHeader() {
       tableBody.scrollTo({ top: 0, left: scrollY });
     };
 
+    const tableHeader = tableHeaderRef.current;
+    const tableBody = tableBodyRef.current;
+
     window.addEventListener("scroll", handleWindowScroll);
+    window.addEventListener("resize", handleWindowResize);
     tableHeader.addEventListener("scroll", handleTableScroll);
     tableBody.addEventListener("scroll", handleTableScroll);
 
     return () => {
       window.removeEventListener("scroll", handleWindowScroll);
+      window.removeEventListener("resize", handleWindowResize);
       tableHeader.removeEventListener("scroll", handleTableScroll);
       tableBody.removeEventListener("scroll", handleTableScroll);
     };
