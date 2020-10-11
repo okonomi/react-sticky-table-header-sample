@@ -1,5 +1,5 @@
 {
-  "name": "sticky-table-header-react",
+  "name": "react-sticky-table-header",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -7,8 +7,7 @@
   "dependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "react-scripts": "3.4.3",
-    "react-scroll": "1.8.1"
+    "react-scripts": "3.4.3"
   },
   "devDependencies": {
     "typescript": "3.8.3"
@@ -19,10 +18,5 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
 }
