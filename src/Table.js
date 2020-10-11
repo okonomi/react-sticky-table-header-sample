@@ -17,49 +17,84 @@ function useStickyTableHeader() {
   const tableHeaderRef = useRef();
   const tableBodyRef = useRef();
 
+  // table size
+  const [tableRect, setTableRect] = useState({});
+
   useEffect(() => {
-    let {
-      left: tableLeft,
-      bottom: tableBottom,
-      width: tableWidth
-    } = tableRef.current.getBoundingClientRect();
-    tableBottom += window.pageYOffset;
+    setTableRect(tableRef.current.getBoundingClientRect().toJSON());
 
-    let {
-      top: headerTop,
-      height: headerHeight
-    } = tableHeaderRef.current.getBoundingClientRect();
-    headerTop += window.pageYOffset;
+    const handleWindowResize = () => {
+      setTableRect(tableRef.current.getBoundingClientRect().toJSON());
+    };
 
+    window.addEventListener("resize", handleWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, [tableRef, setTableRect]);
+
+  // table header size
+  const [tableHeaderRect, setTableHeaderRect] = useState({});
+
+  useEffect(() => {
+    setTableHeaderRect(tableHeaderRef.current.getBoundingClientRect().toJSON());
+  }, [tableHeaderRef, setTableHeaderRect]);
+
+  // table header width
+  useEffect(() => {
     setTableHeaderStyle((prev) => ({
       ...prev,
-      width: tableWidth
+      width: tableRect.width
     }));
+  }, [setTableHeaderStyle, tableRect]);
 
+  // table scroll
+  useEffect(() => {
+    const tableHeader = tableHeaderRef.current;
+    const tableBody = tableBodyRef.current;
+
+    const handleTableScroll = (e) => {
+      const scrollY = e.target.scrollLeft;
+      tableHeader.scrollTo({ top: 0, left: scrollY });
+      tableBody.scrollTo({ top: 0, left: scrollY });
+    };
+
+    tableHeader.addEventListener("scroll", handleTableScroll);
+    tableBody.addEventListener("scroll", handleTableScroll);
+
+    return () => {
+      tableHeader.removeEventListener("scroll", handleTableScroll);
+      tableBody.removeEventListener("scroll", handleTableScroll);
+    };
+  }, [tableRef, tableHeaderRef]);
+
+  // page scroll
+  useEffect(() => {
     const handleWindowScroll = () => {
       const scrollY = window.scrollY;
 
-      if (scrollY >= tableBottom - headerHeight) {
+      if (scrollY >= tableRect.bottom - tableHeaderRect.height) {
         setTableHeaderStyle((prev) => ({
           ...prev,
           position: "absolute",
-          top: tableBottom - headerHeight,
-          left: tableLeft
+          top: tableRect.bottom - tableHeaderRect.height,
+          left: tableRect.left
         }));
         setTableBodyStyle((prev) => ({
           ...prev,
-          paddingTop: headerHeight
+          paddingTop: tableHeaderRect.height
         }));
-      } else if (scrollY >= headerTop) {
+      } else if (scrollY >= tableHeaderRect.top) {
         setTableHeaderStyle((prev) => ({
           ...prev,
           position: "fixed",
           top: 0,
-          left: tableLeft
+          left: tableRect.left
         }));
         setTableBodyStyle((prev) => ({
           ...prev,
-          paddingTop: headerHeight
+          paddingTop: tableHeaderRect.height
         }));
       } else {
         setTableHeaderStyle((prev) => ({
@@ -75,42 +110,12 @@ function useStickyTableHeader() {
       }
     };
 
-    const handleWindowResize = () => {
-      tableWidth = tableRef.current.getBoundingClientRect().width;
-
-      setTableHeaderStyle((prev) => ({
-        ...prev,
-        width: tableWidth
-      }));
-    };
-
-    const handleTableScroll = (e) => {
-      const scrollY = e.target.scrollLeft;
-      tableHeader.scrollTo({ top: 0, left: scrollY });
-      tableBody.scrollTo({ top: 0, left: scrollY });
-    };
-
-    const tableHeader = tableHeaderRef.current;
-    const tableBody = tableBodyRef.current;
-
     window.addEventListener("scroll", handleWindowScroll);
-    window.addEventListener("resize", handleWindowResize);
-    tableHeader.addEventListener("scroll", handleTableScroll);
-    tableBody.addEventListener("scroll", handleTableScroll);
 
     return () => {
       window.removeEventListener("scroll", handleWindowScroll);
-      window.removeEventListener("resize", handleWindowResize);
-      tableHeader.removeEventListener("scroll", handleTableScroll);
-      tableBody.removeEventListener("scroll", handleTableScroll);
     };
-  }, [
-    setTableHeaderStyle,
-    setTableBodyStyle,
-    tableRef,
-    tableHeaderRef,
-    tableBodyRef
-  ]);
+  }, [setTableHeaderStyle, setTableBodyStyle, tableRect, tableHeaderRect]);
 
   return {
     tableRef,
