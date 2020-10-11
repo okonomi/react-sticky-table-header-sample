@@ -3,6 +3,8 @@ import TableHeader from "./TableHeader";
 import TableBody from "./TableBody";
 
 function useStickyTableHeader() {
+  const [mode, setMode] = useState("normal");
+
   const [tableHeaderStyle, setTableHeaderStyle] = useState({
     position: "static",
     top: null,
@@ -75,28 +77,25 @@ function useStickyTableHeader() {
       const scrollY = window.scrollY;
 
       if (scrollY >= tableRect.bottom - tableHeaderRect.height) {
-        setTableHeaderStyle((prev) => ({
-          ...prev,
-          position: "absolute",
-          top: tableRect.bottom - tableHeaderRect.height,
-          left: tableRect.left
-        }));
-        setTableBodyStyle((prev) => ({
-          ...prev,
-          paddingTop: tableHeaderRect.height
-        }));
+        setMode("away");
       } else if (scrollY >= tableHeaderRect.top) {
-        setTableHeaderStyle((prev) => ({
-          ...prev,
-          position: "fixed",
-          top: 0,
-          left: tableRect.left
-        }));
-        setTableBodyStyle((prev) => ({
-          ...prev,
-          paddingTop: tableHeaderRect.height
-        }));
+        setMode("fixed");
       } else {
+        setMode("normal");
+      }
+    };
+
+    window.addEventListener("scroll", handleWindowScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleWindowScroll);
+    };
+  }, [setMode, tableRect, tableHeaderRect]);
+
+  // update style
+  useEffect(() => {
+    switch (mode) {
+      case "normal":
         setTableHeaderStyle((prev) => ({
           ...prev,
           position: "static",
@@ -107,15 +106,41 @@ function useStickyTableHeader() {
           ...prev,
           paddingTop: null
         }));
-      }
-    };
-
-    window.addEventListener("scroll", handleWindowScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleWindowScroll);
-    };
-  }, [setTableHeaderStyle, setTableBodyStyle, tableRect, tableHeaderRect]);
+        break;
+      case "fixed":
+        setTableHeaderStyle((prev) => ({
+          ...prev,
+          position: "fixed",
+          top: 0,
+          left: tableRect.left
+        }));
+        setTableBodyStyle((prev) => ({
+          ...prev,
+          paddingTop: tableHeaderRect.height
+        }));
+        break;
+      case "away":
+        setTableHeaderStyle((prev) => ({
+          ...prev,
+          position: "absolute",
+          top: tableRect.bottom - tableHeaderRect.height,
+          left: tableRect.left
+        }));
+        setTableBodyStyle((prev) => ({
+          ...prev,
+          paddingTop: tableHeaderRect.height
+        }));
+        break;
+      default:
+        break;
+    }
+  }, [
+    mode,
+    setTableHeaderStyle,
+    setTableBodyStyle,
+    tableRect,
+    tableHeaderRect
+  ]);
 
   return {
     tableRef,
@@ -127,6 +152,7 @@ function useStickyTableHeader() {
 }
 
 export default function Table() {
+  console.log("render <Table>");
   const {
     tableRef,
     tableHeaderRef,
