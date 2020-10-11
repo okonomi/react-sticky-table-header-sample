@@ -1,0 +1,6 @@
+th,
+td {
+  min-width: 100px;
+  max-width: 100px;
+  text-align: center;
+}
