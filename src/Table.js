@@ -85,18 +85,21 @@ function useStickyTableHeader() {
     const tableHeader = tableHeaderRef.current;
     const tableBody = tableBodyRef.current;
 
-    const handleTableScroll = (e) => {
+    const handleTableHeaderScroll = (e) => {
       const scrollY = e.target.scrollLeft;
-      tableHeader.scrollTo({ top: 0, left: scrollY });
       tableBody.scrollTo({ top: 0, left: scrollY });
     };
+    tableHeader.addEventListener("scroll", handleTableHeaderScroll);
 
-    tableHeader.addEventListener("scroll", handleTableScroll);
-    tableBody.addEventListener("scroll", handleTableScroll);
+    const handleTableBodyScroll = (e) => {
+      const scrollY = e.target.scrollLeft;
+      tableHeader.scrollTo({ top: 0, left: scrollY });
+    };
+    tableBody.addEventListener("scroll", handleTableBodyScroll);
 
     return () => {
-      tableHeader.removeEventListener("scroll", handleTableScroll);
-      tableBody.removeEventListener("scroll", handleTableScroll);
+      tableHeader.removeEventListener("scroll", handleTableHeaderScroll);
+      tableBody.removeEventListener("scroll", handleTableBodyScroll);
     };
   }, [tableRef, tableHeaderRef]);
 
