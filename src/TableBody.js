@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function TableBody({ tableBodyStyle, tableBodyRef }) {
+  console.log("  <TableBody>");
   return (
     <div className="overflow-auto" style={tableBodyStyle} ref={tableBodyRef}>
       <table>

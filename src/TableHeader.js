@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function TableHeader({ tableHeaderStyle, tableHeaderRef }) {
+  console.log("  <TableHeader>");
   return (
     <div
       className="overflow-auto z-10"

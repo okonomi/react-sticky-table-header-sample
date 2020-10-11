@@ -3,7 +3,9 @@ import TableHeader from "./TableHeader";
 import TableBody from "./TableBody";
 
 function useStickyTableHeader() {
+  console.log("  useStickyTableHeader");
   const [mode, setMode] = useState("normal");
+  console.log("    mode = " + mode);
 
   const [tableHeaderStyle, setTableHeaderStyle] = useState({
     position: "static",
@@ -20,13 +22,28 @@ function useStickyTableHeader() {
   const tableBodyRef = useRef();
 
   // table size
-  const [tableRect, setTableRect] = useState({});
+  const [tableRect, setTableRect] = useState({
+    left: null,
+    bottom: null,
+    width: null
+  });
 
   useEffect(() => {
-    setTableRect(tableRef.current.getBoundingClientRect().toJSON());
+    console.log("useEffect: table size");
+    let { left, bottom, width } = tableRef.current.getBoundingClientRect();
+    bottom += window.pageYOffset;
+
+    setTableRect({
+      left,
+      bottom,
+      width
+    });
 
     const handleWindowResize = () => {
-      setTableRect(tableRef.current.getBoundingClientRect().toJSON());
+      setTableRect((prev) => ({
+        ...prev,
+        width: tableRef.current.getBoundingClientRect().width
+      }));
     };
 
     window.addEventListener("resize", handleWindowResize);
@@ -37,14 +54,25 @@ function useStickyTableHeader() {
   }, [tableRef, setTableRect]);
 
   // table header size
-  const [tableHeaderRect, setTableHeaderRect] = useState({});
+  const [tableHeaderRect, setTableHeaderRect] = useState({
+    top: null,
+    height: null
+  });
 
   useEffect(() => {
-    setTableHeaderRect(tableHeaderRef.current.getBoundingClientRect().toJSON());
+    console.log("useEffect: table header size");
+    let { top, height } = tableHeaderRef.current.getBoundingClientRect();
+    top += window.pageYOffset;
+
+    setTableHeaderRect({
+      top,
+      height
+    });
   }, [tableHeaderRef, setTableHeaderRect]);
 
   // table header width
   useEffect(() => {
+    console.log("useEffect: table header width");
     setTableHeaderStyle((prev) => ({
       ...prev,
       width: tableRect.width
@@ -53,6 +81,7 @@ function useStickyTableHeader() {
 
   // table scroll
   useEffect(() => {
+    console.log("useEffect: table scroll");
     const tableHeader = tableHeaderRef.current;
     const tableBody = tableBodyRef.current;
 
@@ -73,6 +102,7 @@ function useStickyTableHeader() {
 
   // page scroll
   useEffect(() => {
+    console.log("useEffect: page scroll");
     const handleWindowScroll = () => {
       const scrollY = window.scrollY;
 
@@ -94,6 +124,7 @@ function useStickyTableHeader() {
 
   // update style
   useEffect(() => {
+    console.log("useEffect: update style");
     switch (mode) {
       case "normal":
         setTableHeaderStyle((prev) => ({
@@ -152,7 +183,7 @@ function useStickyTableHeader() {
 }
 
 export default function Table() {
-  console.log("render <Table>");
+  console.log("<Table>");
   const {
     tableRef,
     tableHeaderRef,
